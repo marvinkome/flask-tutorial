@@ -1,0 +1,5 @@
+venv
+.vscode
+*sqlite
+migrations
+__pycache__

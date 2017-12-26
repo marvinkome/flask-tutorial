@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block page_content %}
+<div class="jumbotron">
+    <h1>Hello {% if user %}{{user}}{% else %} Stranger {% endif %}</h1>
+    {% if not known %}
+    <p> Pleased to meet you, {{user}}</p>
+    {% else %}
+    <p> Welcome back pal!</p>
+    {% endif %}
+</div>
+{{ wtf.quick_form(form) }}
+{% endblock %}
