@@ -1,5 +1,9 @@
 {% extends 'bootstrap/base.html' %}
 {% block title %}Flasky {% endblock %}
+{% block styles %}
+<link rel="stylesheet" 
+    href="{{ url_for('static', filename = 'vendor/bootstrap/css/bootstrap.min.css') }}">
+{% endblock %}
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
     <div class="container">
@@ -14,9 +18,18 @@
             <a class="navbar-brand" href='/'>Flasky</a>
         </div>
         <div class="navbar-collapse collapse">
-            <ul class="nav navbar-right navbar-nav">
+            <ul class="nav navbar-nav">
                 <li><a href="/">Home</a></li>
             </ul>
+            
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+                {% endif %}
+            </ul>
+
         </div>
     </div>
 </div>
@@ -36,6 +49,7 @@
 </div>
 {% endblock %}
 {% block scripts %}
-{{ super() }}
+<script src="{{ url_for('static', filename = 'vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename = 'vendor/jquery/jquery.min.js') }}"></script>
 {{ moment.include_moment() }}
 {% endblock %}

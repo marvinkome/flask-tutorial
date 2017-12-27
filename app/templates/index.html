@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% block page_content %}
 <div class="jumbotron">
-    <h2>Welcome to first App {{ name }} </h2>
-    <p> Current Time {{ moment(current_time).format('LLL') }}.</p>
-    <p> That was {{ moment(current_time).fromNow(refresh=True) }}</p>
+    {% if current_user.is_authenticated %}
+    <h2>Welcome {{ current_user.username }} </h2>
+    {% else %}
+    <h2>Welcome to Flasky</h2>
+    {% endif %}
 </div>
+<p> Current Time {{ moment(current_time).format('LLL') }}.</p>
+<p> That was {{ moment(current_time).fromNow(refresh=True) }}</p>
 {% endblock %}

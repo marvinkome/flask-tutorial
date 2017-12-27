@@ -1,4 +1,7 @@
+
+import datetime
 from flask import render_template, redirect, session, url_for, flash
+from flask_login import login_required
 from . import main
 from .. import db
 from .forms import NameForm
@@ -34,3 +37,8 @@ def user():
                             form=form,
                             user=session.get('name'),
                             known=session.get('known', False))
+
+@main.route('/secret')
+@login_required
+def secret():
+    return 'Only Authenticated users'
