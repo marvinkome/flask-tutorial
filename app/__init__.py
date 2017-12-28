@@ -4,12 +4,15 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from flask_login import LoginManager
+from flask_assets import Environment
+from assets import assets
 from config import config
 
 bootstrap = Bootstrap()
 moment = Moment()
 db = SQLAlchemy()
 mail = Mail()
+asset = Environment()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
@@ -23,6 +26,8 @@ def create_app(config_name):
     moment.init_app(app)
     db.init_app(app)
     mail.init_app(app)
+    asset.init_app(app)
+    asset.register(assets)
     login_manager.init_app(app)
 
     from .main import main as main_blueprint

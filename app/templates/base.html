@@ -1,8 +1,9 @@
 {% extends 'bootstrap/base.html' %}
 {% block title %}Flasky {% endblock %}
 {% block styles %}
-<link rel="stylesheet" 
-    href="{{ url_for('static', filename = 'vendor/bootstrap/css/bootstrap.min.css') }}">
+   {% assets "main_css" %}
+       <link rel="stylesheet" href="{{ ASSET_URL }}">
+   {% endassets %}
 {% endblock %}
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
@@ -49,7 +50,8 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="{{ url_for('static', filename = 'vendor/bootstrap/js/bootstrap.min.js') }}"></script>
-<script src="{{ url_for('static', filename = 'vendor/jquery/jquery.min.js') }}"></script>
+    {% assets "main_js" %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {{ moment.include_moment() }}
 {% endblock %}
