@@ -1,6 +1,7 @@
 from flask import render_template, redirect, request, url_for, flash
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from ..models import User
+from ..emails import send_email
 from .forms import LoginForm, RegistrationForm
 from . import auth
 from .. import db
@@ -35,7 +36,40 @@ def register():
             password=form.password.data
         )
         db.session.add(user)
-        flash('You can now login')
-        return redirect(url_for('auth.login'))
+        db.session.commit()
+        token = user.generate_confirmation_token()
+        send_email(user.email, 'Confirm your account', 'auth/email/confirm', user=user, token=token)
+        flash('We\'ve send a confimation mail to you')
+        return redirect(url_for('main.index'))
     return render_template('auth/register.html',form=form)
 
+@auth.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    if current_user.confirmed:
+        redirect(url_for('main.index'))
+    if current_user.confirm(token):
+        flash('You have confirmed your account, Thanks')
+    else:
+        flash('Your confirmation link is invalid or expired')
+    return redirect(url_for('main.index'))
+
+@auth.route('/unconfirmed')
+def unconfirmed():
+    if current_user.is_anonymous or current_user.confirmed:
+        return redirect(url_for('main.index'))
+    return render_template('auth/unconfirmed.html')
+
+@auth.before_app_request
+def before_request():
+    if current_user.is_authenticated and not current_user.confirmed \
+    and request.endpoint[:5] != 'auth.':
+        return redirect(url_for('auth.unconfirmed'))
+
+@auth.route('/confirm')
+@login_required
+def resend_confirm():
+    token = current_user.generate_confirmation_token()
+    send_email(current_user.email, 'Confirm your account', 'auth/email/confirm', token=token)
+    flash('A new confirmation has been sent')
+    return redirect(url_for('main.index'))

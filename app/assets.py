@@ -1,6 +1,6 @@
 from flask_assets import Bundle
 
-assets = {
+app_assets = {
     'main_css': Bundle(
         'lib/bootstrap/css/bootstrap.css',
         output='gen/main.css'),

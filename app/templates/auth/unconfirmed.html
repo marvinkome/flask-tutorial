@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block page_content %}
+<div class="page-header">
+    <h2>Hello, {{current_user.username | capitalize}}!</h2>
+    <p>You have not confirmed your account. Check your inbox for a confirmation
+        link. 
+    </p>
+    <p>Or <a href="{{url_for('auth.resend_confirm')}}">Resend Code</a> </p>
+</div>
+{% endblock %}

@@ -4,3 +4,6 @@ venv
 migrations
 __pycache__
 *pyc
+*ash_history
+.webassets-cache
+gen

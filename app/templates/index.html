@@ -3,6 +3,11 @@
 <div class="jumbotron">
     {% if current_user.is_authenticated %}
     <h2>Welcome {{ current_user.username }} </h2>
+        {% if current_user.confirmed %}
+            <p>You are confirmed</p>
+        {% else %}
+            <p>Please confirm your account</p>
+        {% endif %}
     {% else %}
     <h2>Welcome to Flasky</h2>
     {% endif %}

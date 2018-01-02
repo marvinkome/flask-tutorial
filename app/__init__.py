@@ -5,8 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from flask_login import LoginManager
 from flask_assets import Environment
-from assets import assets
 from config import config
+from .assets import app_assets
 
 bootstrap = Bootstrap()
 moment = Moment()
@@ -27,7 +27,7 @@ def create_app(config_name):
     db.init_app(app)
     mail.init_app(app)
     asset.init_app(app)
-    asset.register(assets)
+    asset.register(app_assets)
     login_manager.init_app(app)
 
     from .main import main as main_blueprint

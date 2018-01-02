@@ -1,7 +1,7 @@
 
 import datetime
 from flask import render_template, redirect, session, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from . import main
 from .. import db
 from .forms import NameForm
