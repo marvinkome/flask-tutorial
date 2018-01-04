@@ -11,6 +11,7 @@ class Config:
     FLASKY_MAIL_SENDER = 'Flasky Admin <flasky@example.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or 'MarvinKome'
     FLASKY_ADMIN_EMAIL = os.environ.get('FLASKY_ADMIN_EMAIL')
+    FLASKY_POST_PER_PAGE = 10
 
 
     @staticmethod

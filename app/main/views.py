@@ -1,17 +1,27 @@
 
 import datetime
-from flask import render_template, redirect, session, url_for, flash
+from flask import render_template, redirect, session, url_for, flash, current_app, request
 from flask_login import login_required, current_user
 from . import main
 from .. import db
-from .forms import EditProfileForm, AdminEditProfileForm
-from ..models import User, Role
+from .forms import EditProfileForm, AdminEditProfileForm, PostsForm
+from ..models import User, Role, Permission, Post
 from ..decorators import admin_required
 
-@main.route('/')
+@main.route('/', methods=['GET','POST'])
 def index():
-    name = session.get('name')
-    return render_template('index.html', name=name, current_time = datetime.datetime.utcnow())
+    form = PostsForm()
+    if current_user.can(Permission.WRITE_ARTICLE) and form.validate_on_submit():
+        post = Post(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post)
+        return redirect(url_for('.index'))
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_POST_PER_PAGE'], error_out=False
+    )
+    posts = pagination.items
+    return render_template('index.html', form=form, posts=posts, pagination=pagination)
 
 @main.route('/user/<username>')
 def user(username):
@@ -19,8 +29,9 @@ def user(username):
     if user is None:
         flash('You don\'t have an account please register')
         return redirect(url_for('auth.register'))
-
-    return render_template('user.html', user=user)
+    
+    posts = user.posts.order_by(Post.timestamp.desc()).all()
+    return render_template('user.html', user=user, posts=posts)
 
 @main.route('/edit-profile', methods=['GET','POST'])
 @login_required
@@ -64,3 +75,24 @@ def edit_profile_admin(id):
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('edit-profile.html',form=form,user=user)
+
+@main.route('/post/<int:id>')
+def post(id):
+    post = Post.query.get_or_404(id)
+    return render_template('post.html', posts=[post])
+
+@main.route('/edit/<int:id>', methods=['GET','POST'])
+@login_required
+def edit(id):
+    post = Post.query.get_or_404(id)
+    if current_user != post.author and not current_user.can(Permission.ADMINISTER): 
+        abort(403)
+
+    form = PostsForm()
+    if form.validate_on_submit():
+        post.body = form.body.data
+        db.session.add(post)
+        flash('Post has been updated')
+        return redirect(url_for('post', id=post.id))
+    form.body.data = post.body
+    return render_template('edit_post.html', form=form)

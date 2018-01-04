@@ -19,8 +19,8 @@
     <p>{{user.about_me}}</p>
     {% endif %}
 
-    <p> Member Since {{ moment(user.member_since).format('L') }}</p>
-    <p> Last Seen {{ moment(user.last_seen).fromNow() }}</p>
+    <p> Member Since: {{ moment(user.member_since).format('LLL') }}</p>
+    <p> Last Seen: {{ moment(user.last_seen).fromNow() }}</p>
 
     {% if user == current_user %}
     <p>
@@ -40,7 +40,13 @@
     </p>
     {% endif %}
 </div>
+
 <div class="col-md-4">
     <img class="img-responsive" src="{{user.gravatar(size=256)}}">
+</div>
+
+<div class="col-md-12">
+    <h3>Posts By {{user.username}}</h3>
+    {% include '_posts.html' %}
 </div>
 {% endblock %}
