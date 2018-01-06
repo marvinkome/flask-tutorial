@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import '_macros.html' as macros %}
+{% block title %} Flasky - {{user.username}} {{title}} {% endblock %}
+
+{% block page_content %}
+<div class="jumbotron">
+    <h2>{{ user.name }} {{title}} </h2>
+</div>
+{% endblock %}
+
+{% block columns %}
+<div class="col-sm-8">
+    User
+</div>
+<div class="col-sm-4">
+    Since
+</div>
+
+    {% for follow in follows %}
+    {% if follow.user != user %}
+    <div class="col-sm-8">
+        <a href="{{ url_for('.user', username=follow.user.username) }}">
+            <img class="img-responsive img-rounded" src="{{ follow.user.gravatar(size=32) }}">
+            {{follow.user.username}}
+        </a>
+    </div>
+    <div class="col-sm-4">
+        {{ moment(follow.timestamp).format('L') }}
+    </div>
+    {% endif %}
+    {% endfor %}
+{% endblock %}

@@ -12,7 +12,7 @@ class Config:
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or 'MarvinKome'
     FLASKY_ADMIN_EMAIL = os.environ.get('FLASKY_ADMIN_EMAIL')
     FLASKY_POST_PER_PAGE = 10
-
+    FLASKY_FOLLOWERS_PER_PAGE = 7
 
     @staticmethod
     def init_app(app):
