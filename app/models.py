@@ -8,7 +8,6 @@ from datetime import datetime
 import hashlib
 import bleach
 
-
 # Models
 class Permission:
     FOLLOW = 0x01
@@ -78,6 +77,7 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship('Follow', foreign_keys=[Follow.follower_id], backref=db.backref('follower', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
     followers = db.relationship('Follow', foreign_keys=[Follow.followed_id], backref=db.backref('followed', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='author',lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User,self).__init__(**kwargs)
@@ -206,6 +206,7 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     body_html = db.Column(db.Text)
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')
 
     @staticmethod
     def generate_fake(count=100):
@@ -234,6 +235,45 @@ class Post(db.Model):
             markdown(value, output_format='html'), tags=allowed_tags, strip=True
         ))
 
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+
+    @staticmethod
+    def on_change_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a','abbr','acronym','b','em','i']
+        
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'), tags=allowed_tags, strip=True
+        ))
+
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+
+        seed()
+        user_count = User.query.count()
+        post_count = Post.query.count()
+        for i in range(count):
+            u = User.query.offset(randint(0, user_count - 1)).first()
+            p = Post.query.offset(randint(0, post_count - 1)).first()
+            c = Comment(
+                body=forgery_py.lorem_ipsum.sentences(randint(1,10)),
+                timestamp=forgery_py.date.date(True),
+                author=u,
+                post=p
+            )
+
+            db.session.add(c)
+            db.session.commit()
+
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permission):
         return False
@@ -243,6 +283,7 @@ class AnonymousUser(AnonymousUserMixin):
 
 login_manager.anonymous_user = AnonymousUser
 db.event.listen(Post.body, 'set', Post.on_change_body)
+db.event.listen(Comment.body, 'set', Comment.on_change_body)
 
 @login_manager.user_loader
 def load_user(user_id):

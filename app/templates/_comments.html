@@ -1,0 +1,40 @@
+<div class="container-fluid">
+    {% for comment in comments %}
+    <div class="profile-thumbnail thumbnail">
+        <a href="{{ url_for('.user', username=comment.author.username ) }}">
+            <img class="img-responsive img-rounded" src="{{ comment.author.gravatar(size=40) }}">
+        </a>
+    </div>
+    <div class="comment-date">{{ moment(comment.timestamp).fromNow() }}</div>
+    <div class="comment-author">
+        <a href="{{ url_for('.user', username=comment.author.username ) }}">
+            {{ comment.author.username }}
+        </a>
+    </div>
+    <div class="comment-body">
+        {% if comment.disabled %}
+        <p>Comment is disabled</p>
+        {% endif %}
+        {% if moderate or not comment.disabled %}
+            {% if comment.body_html %}
+                {{ comment.body_html | safe }}
+            {% else %}
+                {{ comment.body }}
+            {% endif %}
+        {% endif %}
+        {% if moderate %}
+        <div class="comment-footer">
+            {% if comment.disabled %}
+            <a class="btn btn-primary" href="{{ url_for('.moderate_enable', id=comment.id) }}">
+                Enable
+            </a>
+            {% else %}
+            <a class="btn btn-danger" href="{{ url_for('.moderate_disable', id=comment.id) }}">
+                Disable
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
