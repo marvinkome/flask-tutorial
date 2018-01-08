@@ -16,7 +16,7 @@
 </div>
 
 <div class="container-fluid">
-    {% if current_user.can(Permission.WRITE_ARTICLES) %}
+    {% if current_user.can(Permission.WRITE_ARTICLE) %}
     {{ wtf.quick_form(form) }}
     {% endif %}
 </div>

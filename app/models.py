@@ -124,8 +124,7 @@ class User(UserMixin, db.Model):
         return True
 
     def can(self, permission):
-        return self.role is not None and \
-         (self.role.permission and permission) == permission
+        return self.role is not None and self.role.permission & permission == permission
 
     def is_admin(self):
         return self.can(Permission.ADMINISTER)
@@ -178,6 +177,8 @@ class User(UserMixin, db.Model):
             db.session.delete(f)
 
     def is_following(self, user):
+        if user.id is None:
+            return False
         return self.followed.filter_by(followed_id=user.id).first() is not None
 
     def is_followed_by(self, user):

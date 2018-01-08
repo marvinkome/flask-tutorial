@@ -7,3 +7,4 @@ __pycache__
 *ash_history
 .webassets-cache
 gen
+tmp

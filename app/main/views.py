@@ -3,6 +3,7 @@ import datetime
 from flask import render_template, redirect, session, url_for, flash, current_app, request, \
 make_response, abort
 from flask_login import login_required, current_user
+from flask_sqlalchemy import get_debug_queries
 from . import main
 from .. import db
 from .forms import EditProfileForm, AdminEditProfileForm, PostsForm, CommentsForm
@@ -234,3 +235,14 @@ def moderate_disable(id):
     db.session.add(comment)
     flash('Comment Disabled')
     return redirect(url_for('.moderate', page=page))
+
+@main.after_app_request
+def after_request(response):
+    for query in get_debug_queries():
+        if query.duration >= current_app.config['FLASKY_SLOW_DB_QUERY_TIME']:
+            current_app.logger.warning(
+                'Slow Query: {}\nParameters: {}\nDuration: {}\nContext: {}\n'.format(
+                    query.statement, query.parameters, query.duration, query.context
+                )
+            )
+    return response
